@@ -1,13 +1,21 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Index</title>
+		<title>Home</title>
 	</head>
 	<body>
-		<h1>Hello world</h1>
-		{% for p in people %}
-			<br>
-			{{p.Name}} &nbsp; {{p.Age}}
-		{% endfor %}
+		<h1>Please enter the value of the hashtag you would like to be analyzed</h1>
+		<br>
+		<form method="POST">
+			{% csrf_token %} <!-- This is part of the django built in security to prevent malicious websites from sending requests to ours via forged requests -->
+			<input type="text" id="ht" required/>
+			<input type="submit"/>
+		</form>
+		
+		{% if msg %} <!-- This is how we determine if a value has been sent from the backend -->
+		<div style="color: red;">
+			{{msg}} <!-- this is how we place the value of the variable onto the page -->
+		</div>
+		{% endif %}
 	</body>
 </html>
