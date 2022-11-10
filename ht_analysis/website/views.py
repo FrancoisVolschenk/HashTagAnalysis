@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 
 def index(request):
@@ -16,5 +16,13 @@ def index(request):
             Context = {"msg": "Please be sure to enter a valid hashtag"}
             return render(request, "website/index.html", Context) 
         else:
-            pass 
             """We have the hashtag and can use it to perform the analysis"""
+            return data_visualizationPage(request, hashtag)
+            
+
+def data_visualizationPage(request, hashtag = None):
+    if hashtag is None:
+        return redirect(index)
+    else:
+        pass
+        """We process the data and return it in a format that can be visualized on the front end"""
