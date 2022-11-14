@@ -20,7 +20,7 @@
 						{% csrf_token %} <!-- This is part of the django built in security to prevent malicious websites from sending requests to ours via forged requests -->
 		
 						<div class="input-group">
-                            <input type="text" id ="ht" class="form-control bg-light border-0 small" placeholder="Enter Hashtag to Be Analyzed..."
+                            <input type="text" id ="ht" name="ht" class="form-control bg-light border-0 small" placeholder="Enter Hashtag to Be Analyzed..."
                                 aria-label="Search" aria-describedby="basic-addon2" required>
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="sumbit">
