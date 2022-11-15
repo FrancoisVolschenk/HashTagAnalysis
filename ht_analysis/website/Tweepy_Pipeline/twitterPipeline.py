@@ -42,7 +42,7 @@ def acquire_tweets(hashtag: str, upper_limit:int = None) -> pd.DataFrame:
     else:
         number_of_hashtag_tweets = 300 # set default upper limit   
 
-    tweets = tweepy.Cursor(tweets_access_api.search_tweets, q = tweet_hashtag , count = 200, tweet_mode = 'extended').items(number_of_hashtag_tweets)
+    tweets = tweepy.Cursor(tweets_access_api.search_tweets, q = tweet_hashtag , count = 200, tweet_mode = 'extended', lang='en').items(number_of_hashtag_tweets)
 
     #Creating the dataframe with pandas
     columns = ['Tweets']
