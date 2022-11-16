@@ -54,7 +54,7 @@ def predict_sentiment(tweets: pd.DataFrame):
     sequences = pad_sequences(tokenizer.texts_to_sequences(tweets.Tweets), maxlen = MAX_SEQUENCE_LENGTH)
 
     # load model
-    model = keras.models.load_model('model/ht_analysis_model_v1.0.h5')
+    model = keras.models.load_model('website/ml_pipeline/ht_analysis_model_v1.0.h5')
 
     # predict sentiment
     predictions = model.predict(sequences, verbose=1, batch_size=10000)
