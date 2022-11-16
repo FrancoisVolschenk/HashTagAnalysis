@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .Tweepy_Pipeline.twitterPipeline import *
+from .ml_pipeline.ml import *
 
 
 def index(request):
@@ -12,9 +13,8 @@ def index(request):
     # if a post reques was made, the user searched for a hashtag
     elif request.method == "POST":
         # extract the hashtag from the request
-        print(request.POST)
         hashtag = request.POST.get("ht", None)
-        upper_limit = request.POST.get("limit", None) # TODO: add a fiel to the UI that can gather an uper limit value from the user
+        upper_limit = request.POST.get("limit", None)
         if hashtag is None:
             Context = {"msg": "Please be sure to enter a valid hashtag"}
             return render(request, "website/index.html", Context) 
@@ -29,6 +29,14 @@ def data_visualizationPage(request, data):
         return redirect(index)
     else:
         # We process the data and return it in a format that can be visualized on the front end
-        # TODO: make a call to the ML model and have the data processed
-        # TODO: create a UI for the data visualization page and pass the data to it in a way that can be visualized(dashboard.html created for visualization)
-        return render(request, "website/dashboard.html", {"msg": "The data has been displayed on the console for the time being"})  # TEMP
+        # make a call to the ML model and have the data processed
+        results = predict_sentiment(data)
+        # save the word clouds so that they can be displayed on the web page
+        results['wc_p'].save("website/static/website/img/wc_p.jpg")
+        results['wc_n'].save("website/static/website/img/wc_n.jpg")
+        results['wc_u'].save("website/static/website/img/wc_u.jpg")
+        # print(results)
+        results['msg'] = "The data has been displayed on the console for the time being" #Temp
+        
+        return render(request, "website/dashboard.html", results)
+        # TODO: Parse the data in the front end to display the charts with the returned data
