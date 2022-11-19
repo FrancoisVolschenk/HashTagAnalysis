@@ -5,5 +5,5 @@ from . import views
 urlpatterns = [
 
     path('', views.index, name="home"), # This is the default path, it sends the user to the index.html page
-
+    path('dashboard',views.dashboard,name="dashboard")
 ]

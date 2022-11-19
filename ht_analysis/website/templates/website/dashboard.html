@@ -1,5 +1,3 @@
-
-
 {% extends 'website/base.html' %}
 {% load static %}
 {% block title %}Dashboard{% endblock %}
@@ -7,31 +5,51 @@
 {% block content %}
 <div class="dashboard">
 
-    {% if msg is None or msg.empty %}
+    {% if msg is None or hashtag is None %}
     <!-- This is how we determine if a value has been sent from the backend -->
     <div style="color: red; display: flex; justify-content: center;">
-       <p>No Hashtag Input( maybe use trending hashtag?)</p>
+        <p>No Hashtag Input( maybe use trending hashtag?)</p>
         <!-- this is how we place the value of the variable onto the page -->
     </div>
     {% else %}
     <div class="div-center">
-        <p style="color:green"> {{msg}}</p>
+        <p style="color:green"> {{hashtag}}</p>
     </div>
-    
+
 
     {% endif %}
-      <!-- Content Row -->
-      <div class="div-center row">
+    <!-- Content Row -->
+    <div class="div-center row">
 
-        <!-- Earnings (Monthly) Card Example -->
+        <!-- Total Tweets Pulled -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
+                <div class="card-body" style="padding-top: 0.7rem;padding-bottom: 1rem;">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Number of Tweets (Total)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">100%</div>
+                                Tweets Pulled (Total)</div>
+                            <div class=" align-items-center row" style="margin-left: 0.05rem;">
+                                <div id="showTotal" class="h5 mb-0 font-weight-bold text-gray-800 ">{{tweets_pulled}}
+                                </div>
+                                <form method="POST" id="showEdit" style="display: none;">
+                                    {% csrf_token %}
+
+                                    <div class="small-inputgroup flex-row">
+                                        <input value="{{hashtag}}" id="ht" name="ht" hidden>
+                                        <input class="small-input" id="limit" name="limit" value="{{tweets_pulled}}">
+                                        <button class="btn-small" type="sumbit">
+                                            <i class="fa-solid fa-arrow-right-to-bracket" style="color:white"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="">
+                                    <button id="toggleEdit" class="btn" type="sumbit">
+                                        <i class="fa fa-edit text-gray-300"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-chart-line · Unicode: f201 fa-2x text-gray-300"></i>
@@ -41,7 +59,7 @@
             </div>
         </div>
 
-        <!-- Earnings (Monthly) Card Example -->
+        <!--Positive Tweets -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
@@ -49,7 +67,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Positive </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">50%</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{percent_pos|floatformat:2}}%</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-thumbs-up fa-2x text-gray-300"></i>
@@ -58,20 +76,45 @@
                 </div>
             </div>
         </div>
+        <!--Neutral tweets-->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><span
+                                    style="color:#f6c23e">Neutral</span>
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                        {{percent_neu|floatformat:2}}%</div>
+                                </div>
 
-        <!-- Earnings (Monthly) Card Example -->
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas  fa-meh fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Negative tweets-->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1" ><span style="color:red">Negative</span>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1"><span
+                                    style="color:red">Negative</span>
                             </div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                        {{percent_neg|floatformat:2}}%</div>
                                 </div>
-                                
+
                             </div>
                         </div>
                         <div class="col-auto">
@@ -82,101 +125,80 @@
             </div>
         </div>
 
-    
+
     </div>
-	
-	<!-- Content Row -->
-	<div class="div-center row">
-	
-		<div class="col-xl-3 col-md-6 mb-4">
-		<div class="card border-left-success shadow h-100 py-2">
-			<div class="card-body">
-				<div class="row no-gutters align-items-center">
-					<div class="col mr-2">
-						<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-							Words from positive tweets</div>
-						<img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                    src="{% static 'website/img/wc_p.jpg' %}" alt="Word Cloud Positive">
-					</div>
-				</div>
-			</div>
-		</div>
-        </div>
-		
-		<div class="col-xl-3 col-md-6 mb-4">
-		<div class="card border-left-primary shadow h-100 py-2">
-			<div class="card-body">
-				<div class="row no-gutters align-items-center">
-					<div class="col mr-2">
-						<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-							Words from unclassified tweets</div>
-						<img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                    src="{% static 'website/img/wc_u.jpg' %}" alt="Word Cloud Unclassified">
-					</div>
-				</div>
-			</div>
-		</div>
-        </div>
-		
-		<div class="col-xl-3 col-md-6 mb-4">
-		<div class="card border-left-info shadow h-100 py-2">
-			<div class="card-body">
-				<div class="row no-gutters align-items-center">
-					<div class="col mr-2">
-						<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-							Words from negative tweets</div>
-						<img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                    src="{% static 'website/img/wc_n.jpg' %}" alt="Word Cloud Negative">
-					</div>
-				</div>
-			</div>
-		</div>
-        </div>
-	</div>
 
-    <!-- Content Row -->
+    <!-- Show WordClouds Row -->
+    <div class="row ml-5">
+        <p id="max" hidden>{{max}} </p>
+        <div class="radio-wc col-lg-2 col-md-2 mb-4">
+            <h6 class="flex-column">Word Cloud</h6>
+            <label class="radio-label">
+                <input type="radio" name="wc" id="wc_p" value="p">Positive
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="wc" id="wc_u" value="u">Unsure
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="wc" id="wc_n" value="n">Negative
+            </label>
+        </div>
+        <!--col-xl-3 col-md-6 mb-4-->
+        <div class="div-center stop-words row">
 
-    <div class="row">
-
-        <!-- Area Chart -->
-        <div class="col-xl-8 col-lg-7">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
+            <div class="col-xl-12 col-md-12  mb-4">
+                <div id="blockwc" class="card  shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center justify-content-center">
+                            <div class="">
+                                <div id="wctitle"
+                                    class="text-xs font-weight-bold text-primary div-center text-uppercase mb-1">
+                                </div>
+                                <img id="wcimg" class="img-fluid px-3 px-sm-4 mt-3 mb-4"
+                                    src="/static/website/img/wc_p.jpg" alt="Word Cloud Positive" style="width: 40rem;">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="myAreaChart"></canvas>
-                    </div>
-                </div>
             </div>
+
+
+        </div>
+    </div>
+    <!-- Show Data Row -->
+    <div class="row div-center p-4">
+        <div class="">
+            <button id="toggleTable" class="btn" type="sumbit">
+                <i id="opent" class="fa fa-eye text-gray-300"></i>
+                <i id="close" class="fa fa-eye-slash text-gray-300" style="display: none;"></i>
+            </button>
         </div>
 
+        <table class="blueTable " id="tableall" style="display: none;">
+            <th>Tweet</th>
+            <th>Sentiment</th>
+            <th>Time Posted</th>
+            <th>Confidence</th>
+            {% for i in all_tweets %}
+            <tr id="valrow">
+                <td>{{i.tweet}}</td>
+                <td>{{i.sentiment}}</td>
+                <td>{{i.time}}</td>
+                <td>{{i.value|floatformat:3 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="row">
         <!-- Pie Chart -->
         <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Sentiment Distribution</h6>
                     <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
@@ -192,170 +214,515 @@
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-pie pt-4 pb-2">
-                        <canvas id="myPieChart"></canvas>
+                        <canvas id="myChart"></canvas>
                     </div>
-                    <div class="mt-4 text-center small">
+                    <div class="mt-4 text-center small" style="color:black">
                         <span class="mr-2">
-                            <i class="fas fa-circle text-primary"></i> Direct
+                            <i class="fas fa-circle " style="color:#1cc88a"></i> Positive
                         </span>
                         <span class="mr-2">
-                            <i class="fas fa-circle text-success"></i> Social
+                            <i class="fas fa-circle " style="color:#f6c23e"></i> Unsure
                         </span>
                         <span class="mr-2">
-                            <i class="fas fa-circle text-info"></i> Referral
+                            <i class="fas fa-circle " style="color:#D22B2B"></i> Negative
                         </span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Sentiment Over Time</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Dropdown Header:</div>
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myTimeChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" style="color:black">
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#1cc88a"></i> Positive
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#f6c23e"></i> Unsure
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#D22B2B"></i> Negative
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- Content Row -->
+
+    </div>
     <div class="row">
-
-        <!-- Content Column -->
-        <div class="col-lg-6 mb-4">
-
-            <!-- Project Card Example -->
-            <!-- <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Projects</h6>
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Word Frequency</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Dropdown Header:</div>
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </div>
                 </div>
+                <!-- Card Body -->
                 <div class="card-body">
-                    <h4 class="small font-weight-bold">Server Migration <span class="float-right">20%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20"
-                            aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="chart-area">
+                        <canvas id="mywfChart"></canvas>
                     </div>
-                    <h4 class="small font-weight-bold">Sales Tracking <span class="float-right">40%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"
-                            aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <h4 class="small font-weight-bold">Customer Database <span class="float-right">60%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60"
-                            aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <h4 class="small font-weight-bold">Payout Details <span class="float-right">80%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80"
-                            aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <h4 class="small font-weight-bold">Account Setup <span class="float-right">Complete!</span></h4>
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%"
-                            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
+                    
                 </div>
-            </div> -->
-
-            <!-- Color System -->
-            <!-- <div class="row">
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-primary text-white shadow">
-                        <div class="card-body">
-                            Primary
-                            <div class="text-white-50 small">#4e73df</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-success text-white shadow">
-                        <div class="card-body">
-                            Success
-                            <div class="text-white-50 small">#1cc88a</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-info text-white shadow">
-                        <div class="card-body">
-                            Info
-                            <div class="text-white-50 small">#36b9cc</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-warning text-white shadow">
-                        <div class="card-body">
-                            Warning
-                            <div class="text-white-50 small">#f6c23e</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-danger text-white shadow">
-                        <div class="card-body">
-                            Danger
-                            <div class="text-white-50 small">#e74a3b</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-secondary text-white shadow">
-                        <div class="card-body">
-                            Secondary
-                            <div class="text-white-50 small">#858796</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-light text-black shadow">
-                        <div class="card-body">
-                            Light
-                            <div class="text-black-50 small">#f8f9fc</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="card bg-dark text-white shadow">
-                        <div class="card-body">
-                            Dark
-                            <div class="text-white-50 small">#5a5c69</div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
+            </div>
         </div>
 
-        <div class="col-lg-6 mb-4">
 
-            <!-- Illustrations -->
-            <!-- <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Illustrations</h6>
-                </div>
-                <div class="card-body">
-                    <div class="text-center">
-                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                            src="{% static 'website/img/undraw_posting_photo.svg' %}" alt="...">
-                    </div>
-                    <p>Add some quality, svg illustrations to your project courtesy of <a target="_blank"
-                            rel="nofollow" href="https://undraw.co/">unDraw</a>, a
-                        constantly updated collection of beautiful svg images that you can use
-                        completely free and without attribution!</p>
-                    <a target="_blank" rel="nofollow" href="https://undraw.co/">Browse Illustrations on
-                        unDraw &rarr;</a>
-                </div>
-            </div> -->
-
-            <!-- Approach -->
-            <!-- <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
-                </div>
-                <div class="card-body">
-                    <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce
-                        CSS bloat and poor page performance. Custom CSS classes are used to create
-                        custom components and custom utility classes.</p>
-                    <p class="mb-0">Before working with this theme, you should become familiar with the
-                        Bootstrap framework, especially the utility classes.</p>
-                </div>
-            </div> -->
-
-        </div>
     </div>
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Word Frequency with Sentiment</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Dropdown Header:</div>
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="mywf_sChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" style="color:black">
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#1cc88a"></i> Positive
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#f6c23e"></i> Unsure
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#D22B2B"></i> Negative
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">User location with Sentiment</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Dropdown Header:</div>
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="mylocChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" style="color:black">
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#1cc88a"></i> Positive
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#f6c23e"></i> Unsure
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle " style="color:#D22B2B"></i> Negative
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+ 
+
+
+
+    <!--Charts-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script>
+
+        //Sentiment Distribution chart
+
+
+        var my_list = JSON.parse('{{ n_sentiment|escapejs }}');
+        //setup
+        const data = {
+            labels: ["Positive", "Unsure", "Negative"],
+            datasets: [{
+                data: my_list,
+                backgroundColor: ['#1cc88a', '#f6c23e', '#D22B2B'],
+                hoverBackgroundColor: ['green', 'yellow', 'red'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        }
+        //config
+        const config = {
+            type: 'pie',
+            data,
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 80,
+            },
+        }
+        //render |init
+
+        const sentimentChart = new Chart(document.getElementById("myChart"),
+            config
+        );
+
+        //Sentiment over time chart
+
+        let unit = '{{unit}}'
+        var d1 = JSON.parse('{{ pos_ds|escapejs }}');
+        var d2 = JSON.parse('{{ neg_ds|escapejs }}');
+        var d3 = JSON.parse('{{ neu_ds|escapejs }}');
+        //setup
+        const data2 = {
+            datasets: [
+                //Positive
+                {
+                    label: 'positive',
+                    data: d1,
+                    backgroundColor: '#1cc88a',
+                    hoverBackgroundColor: 'green'
+                },
+                //Negative   
+                {
+                    label: 'negative',
+                    data: d2,
+                    backgroundColor: '#D22B2B',
+                    hoverBackgroundColor: 'red'
+                },
+                //Unsure
+                {
+                    label: 'unsure',
+                    data: d3,
+                    backgroundColor: '#f6c23e',
+                    hoverBackgroundColor: 'yellow'
+                },
+            ],
+
+        };
+        //config
+        const config2 = {
+            type: 'bar',
+            data: data2,
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: unit
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time in' + unit + 's'
+                        }
+
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of tweets'
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+
+                cutoutPercentage: 80,
+            },
+        }
+
+        //render /init
+        const timeChart = new Chart(document.getElementById("myTimeChart"),
+            config2
+        );
+
+
+        //Word Frequency  
+        var words = JSON.parse('{{freq_words|escapejs }}');
+        var values = JSON.parse('{{freq_values|escapejs }}');
+
+        //setup
+        const data3 = {
+            labels: words,
+            datasets: [
+
+                {
+                    data: values,
+                    backgroundColor: '#1DA1F2',
+                    hoverBackgroundColor: ' #6495ED'
+                },
+            ],
+
+        };
+
+        //config
+        const config3 = {
+            type: 'bar',
+            data: data3,
+            options: {
+                scales: {
+                    x: {                     
+                        title: {
+                            display: true,
+                            text: '10 Most Occuring Words'
+                        }
+
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Occurences in all tweets'
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+
+                cutoutPercentage: 80,
+            },
+        }
+
+        //render /init
+        const wordFreqChart = new Chart(document.getElementById("mywfChart"),
+            config3
+        );
+
+        //words vs sentiment vs accuracy
+        var counts = JSON.parse('{{wf_counts|escapejs }}');
+        var sentiment = JSON.parse('{{wf_sentiments|escapejs }}')
+
+        //setup
+        function colorswitch(val) {
+            if (val < 0.45) return '#D22B2B'
+            else if (val > 0.55) return '#1cc88a';
+            else return '#f6c23e'
+
+        }
+        function h_colorswitch(val) {
+            if (val < 0.45) return 'red'
+            else if (val > 0.55) return 'green';
+            else return 'yellow'
+
+        }
+        const backgroundColors = sentiment.map(colorswitch);
+        const hoverbackgroundColors = sentiment.map(h_colorswitch);
+        const data4 = {
+            labels: words,
+            datasets: [           
+                {
+                    data: counts,
+                    backgroundColor: backgroundColors,
+                    hoverBackgroundColor: hoverbackgroundColors
+                },
+            ],
+
+        };
+
+        //config
+        const config4 = {
+            type: 'bar',
+            data: data4,
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    y: {                     
+                        title: {
+                            display: true,
+                            text: '10 Most Occuring Words'
+                        }
+
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '# of tweets found in'
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+
+                cutoutPercentage: 80,
+            },
+        }
+
+        //render /init
+        const wordFreq_SChart = new Chart(document.getElementById("mywf_sChart"),
+            config4
+        );
+
+
+
+        // User Location Sentiment
+
+        //wordcount vs sentiment vs accuracy
+        var places = JSON.parse('{{ls_places|escapejs }}');
+        var values = JSON.parse('{{ls_values|escapejs }}');
+        var n_tweets = JSON.parse('{{ls_counts|escapejs }}');
+
+        //setup
+
+        const backgroundColors1 = values.map(colorswitch);
+        const hoverbackgroundColors2 = values.map(h_colorswitch);
+        const data5 = {
+            labels: places,
+            datasets: [
+
+                {            
+                    data: n_tweets,
+                    backgroundColor: backgroundColors,
+                    hoverBackgroundColor: hoverbackgroundColors
+                },
+            ],
+
+        };
+
+        //config
+        const config5 = {
+            type: 'bar',
+            data: data5,
+            options: {
+                scales: {
+                    x: {                     
+                        title: {
+                            display: true,
+                            text: '10 Most Occuring Places'
+                        }
+
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of tweets'
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+
+                cutoutPercentage: 80,
+            },
+        }
+
+        //render /init
+        const loc_Chart = new Chart(document.getElementById("mylocChart"),
+            config5
+        );
+
+    </script>
 </div>
 {% endblock %}
