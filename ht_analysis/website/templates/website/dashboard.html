@@ -190,10 +190,10 @@
     <!-- Show Data Row -->
     <div class="row div-center p-4">
         <div class="mb-2">
-          
+
             <button id="toggleTable" class="toggle-button" type="sumbit">
                 <span class="mr-1">Pulled Tweets</span>
-                <i id="opent" class="fa fa-eye " ></i>
+                <i id="opent" class="fa fa-eye "></i>
                 <i id="close" class="fa fa-eye-slash " style="display: none;"></i>
             </button>
         </div>
@@ -222,14 +222,14 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary2">Sentiment Distribution</h6>
-                   
+
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="myChart"></canvas>
+                    <div class="chart-pie pb-2">
+                        <canvas id="myChart" style="width: 350px;"></canvas>
                     </div>
-                 
+
                 </div>
             </div>
         </div>
@@ -239,28 +239,15 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary2">Sentiment Over Time</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
+
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="myTimeChart"></canvas>
                     </div>
-                    
-                </div> 
+
+                </div>
             </div>
         </div>
 
@@ -305,37 +292,14 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-boldtext-primary2">Word Frequency with Sentiment</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
+
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="mywf_sChart"></canvas>
                     </div>
-                    <div class="mt-4 text-center small" style="color:black">
-                        <span class="mr-2">
-                            <i class="fas fa-circle " style="color:#1cc88a"></i> Positive
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle " style="color:#f6c23e"></i> Unsure
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle " style="color:#D22B2B"></i> Negative
-                        </span>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -396,6 +360,8 @@
         src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script>
 
+        Chart.defaults.font.size = 14;
+        Chart.defaults.color = 'black'
         //Sentiment Distribution chart
 
 
@@ -415,7 +381,7 @@
             type: 'pie',
             data,
             options: {
-                responsive:true,
+                responsive: true,
                 maintainAspectRatio: false,
                 tooltips: {
                     backgroundColor: "rgb(255,255,255)",
@@ -427,8 +393,14 @@
                     displayColors: false,
                     caretPadding: 10,
                 },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Number of tweets vs Sentiment'
+                    }
+                },
                 legend: {
-                    display: false
+                    display: true
                 },
                 cutoutPercentage: 80,
             },
@@ -507,7 +479,12 @@
                     displayColors: false,
                     caretPadding: 10,
                 },
-
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Number of tweets over time'
+                    }
+                },
                 cutoutPercentage: 80,
             },
         }
@@ -528,6 +505,7 @@
             datasets: [
 
                 {
+                    label: 'Number of words',
                     data: values,
                     backgroundColor: '#1DA1F2',
                     hoverBackgroundColor: ' #6495ED'
@@ -567,7 +545,9 @@
                     displayColors: false,
                     caretPadding: 10,
                 },
-
+                legend: {
+                    display: false
+                },
                 cutoutPercentage: 80,
             },
         }
@@ -577,35 +557,44 @@
             config3
         );
 
-        //words vs sentiment vs accuracy
-        var counts = JSON.parse('{{wf_counts|escapejs }}');
-        var sentiment = JSON.parse('{{wf_sentiments|escapejs }}')
-
+        //word count with average sentiment 
         //setup
-        function colorswitch(val) {
-            if (val < 0.45) return '#D22B2B'
-            else if (val > 0.55) return '#1cc88a';
-            else return '#f6c23e'
+        const words_wfs = JSON.parse('{{wfs_words|escapejs }}');
+        const group1Data = JSON.parse('{{wfs_pos|escapejs }}');; //Counts for words with a positive avg sentiment
+        const group2Data = JSON.parse('{{wfs_neu|escapejs }}');;//Counts for words with a unsure avg sentiment
+        const group3Data = JSON.parse('{{wfs_neg|escapejs }}');;//Counts for words with a negative avg sentiment
 
-        }
-        function h_colorswitch(val) {
-            if (val < 0.45) return 'red'
-            else if (val > 0.55) return 'green';
-            else return 'yellow'
+        const getResultData = (mainIndex, ...data) => data.reduce((acc, data, index) => {
+            if (mainIndex === index) return acc.concat(data);
+            return acc.concat(data.map(() => null));
+        }, []);
 
-        }
-        const backgroundColors = sentiment.map(colorswitch);
-        const hoverbackgroundColors = sentiment.map(h_colorswitch);
+        const groups = [
+            {
+                label: 'Positive',
+                data: getResultData(0, group1Data, group2Data, group3Data),
+                backgroundColor: '#1cc88a',
+                hoverBackgroundColor: 'green'
+            },
+            {
+                label: 'Unsure',
+                data: getResultData(1, group1Data, group2Data, group3Data),
+                backgroundColor: '#f6c23e',
+                hoverBackgroundColor: 'yellow'
+            },
+            {
+                label: 'Negative',
+                data: getResultData(2, group1Data, group2Data, group3Data),
+                backgroundColor: '#D22B2B',
+                hoverBackgroundColor: 'red'
+            }
+        ];
         const data4 = {
-            labels: words,
-            datasets: [
-                {
-                    data: counts,
-                    backgroundColor: backgroundColors,
-                    hoverBackgroundColor: hoverbackgroundColors
-                },
-            ],
-
+            labels: words_wfs,
+            datasets: groups.map((group) => ({
+                ...group,
+                barPercentage: groups.length
+            }))
         };
 
         //config
@@ -640,9 +629,18 @@
                     displayColors: false,
                     caretPadding: 10,
                 },
-
+                plugins: {
+                    legend: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: "Average Sentiment"
+                        }
+                    }
+                },
                 cutoutPercentage: 80,
             },
+
         }
 
         //render /init
@@ -654,27 +652,43 @@
 
         // User Location Sentiment
 
-        //wordcount vs sentiment vs accuracy
-        var places = JSON.parse('{{ls_places|escapejs }}');
-        var values = JSON.parse('{{ls_values|escapejs }}');
-        var n_tweets = JSON.parse('{{ls_counts|escapejs }}');
-
         //setup
 
-        const backgroundColors1 = values.map(colorswitch);
-        const hoverbackgroundColors2 = values.map(h_colorswitch);
+
+        const places = JSON.parse('{{ls_places|escapejs }}');
+        const ls_pos = JSON.parse('{{ls_pos|escapejs }}');; //Counts for words with a positive avg sentiment
+        const ls_neu = JSON.parse('{{ls_neu|escapejs }}');;//Counts for words with a unsure avg sentiment
+        const ls_neg = JSON.parse('{{ls_neg|escapejs }}');;//Counts for words with a negative avg sentiment
+
+        const ls_groups = [
+            {
+                label: 'Positive',
+                data: getResultData(0, ls_pos, ls_neu, ls_neg),
+                backgroundColor: '#1cc88a',
+                hoverBackgroundColor: 'green'
+            },
+            {
+                label: 'Unsure',
+                data: getResultData(1, ls_pos, ls_neu, ls_neg),
+                backgroundColor: '#f6c23e',
+                hoverBackgroundColor: 'yellow'
+            },
+            {
+                label: 'Negative',
+                data: getResultData(2, ls_pos, ls_neu, ls_neg),
+                backgroundColor: '#D22B2B',
+                hoverBackgroundColor: 'red'
+            }
+        ];
         const data5 = {
             labels: places,
-            datasets: [
-
-                {
-                    data: n_tweets,
-                    backgroundColor: backgroundColors,
-                    hoverBackgroundColor: hoverbackgroundColors
-                },
-            ],
-
+            datasets: ls_groups.map((group) => ({
+                ...group,
+                barPercentage: ls_groups.length
+            }))
         };
+
+
 
         //config
         const config5 = {
@@ -707,7 +721,15 @@
                     displayColors: false,
                     caretPadding: 10,
                 },
-
+                plugins: {
+                    legend: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: "Average Sentiment"
+                        }
+                    }
+                },
                 cutoutPercentage: 80,
             },
         }

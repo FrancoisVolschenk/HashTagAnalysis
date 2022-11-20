@@ -12122,7 +12122,11 @@ a:focus {
   height: 10rem;
   width: 100%;
 }
-
+.chart-pie{
+  position: relative;
+  height: 10rem;
+  width: 100%;
+}
 @media (min-width: 768px) {
   .chart-bar {
     height: 20rem;
@@ -12133,7 +12137,7 @@ a:focus {
 
 @media (min-width: 768px) {
   .chart-pie {
-    height: calc(20rem - 43px) !important;
+    height: 20rem;
   }
 }
 
@@ -12297,8 +12301,8 @@ form.user .btn-user {
 
 .home {
   background-color: aliceblue;
-  color: black;
-  height: 100vh;
+  color: #082567;
+  height: 100vh; 
 }
 
 .home-block {

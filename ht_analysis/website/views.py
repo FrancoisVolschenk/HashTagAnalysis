@@ -55,15 +55,16 @@ def data_visualizationPage(request, data, hashtag):
         # Temp
         results['msg'] = "The data has been displayed on the console for the time being"
 
-        #For  Tweets' table
-        results['all_tweets'] = results['positive'] + results['unsure'] + results['negative']
+        # For  Tweets' table
+        results['all_tweets'] = results['positive'] + \
+            results['unsure'] + results['negative']
 
        # For Distribution pie chart
         results['n_sentiment'] = json.dumps(
             [len(results['positive']), len(results['unsure']), len(results['negative'])])
 
        # Sentiment over Time
-        
+
         td_values = timeData(results['all_tweets'])
         results['unit'] = td_values['unit']
         time_datasets = parsechartpoints(td_values['df'])
@@ -73,27 +74,35 @@ def data_visualizationPage(request, data, hashtag):
 
         # Word Frequency
 
-        frq = wordFrequency([d['tweet'] for d in results['all_tweets']], hashtag)
+        frq = wordFrequency([d['tweet']
+                            for d in results['all_tweets']], hashtag)
         frq_values = [x[0] for x in frq]
         frq_words = [x[1] for x in frq]
         results['freq_words'] = json.dumps(
             frq_words[0:10])  # 10 most frequent words
         results['freq_values'] = json.dumps(
             frq_values[0:10])  # 10 most frequent words
-        # Word Frequency with sentiment
-        wf_sentiment = wordFrequency_Sentiment(  frq_words[0:10],results['all_tweets'])
-        results['wf_words'] = json.dumps(wf_sentiment['words'])
-        results['wf_counts'] = json.dumps(wf_sentiment['counts'])
-        results['wf_sentiments'] = json.dumps(wf_sentiment['sentiments'])
 
-        #UserLocation vs Average sentiment
+        # Word Frequency with sentiment
+        wf_sentiment = wordFrequency_Sentiment(
+            frq_words[0:10], results['all_tweets'])
+
+        results['wfs_words'] = json.dumps(wf_sentiment['words'])
+        results['wfs_pos'] = json.dumps(wf_sentiment['pos'])
+        results['wfs_neu'] = json.dumps(wf_sentiment['neu'])
+        results['wfs_neg'] = json.dumps(wf_sentiment['neg'])
+
+        # UserLocation vs Average sentiment
+        # Some tweets don't have the user's location and their bar will appear without a label on the graph as they are grouped together,
+        # need to check it it exists and filter it out later
         loc_values = locationData(results['all_tweets'])
-        results['ls_places'] = json.dumps(list(loc_values['places'])[1:11])
-        results['ls_values'] = json.dumps(list(loc_values['sentiment'])[1:11])
-        results['ls_counts'] = json.dumps(list(loc_values['counts'])[1:11])
+        results['ls_places'] = json.dumps(loc_values['places'][0:10])
+        results['ls_pos'] = json.dumps(loc_values['pos'][0:10])
+        results['ls_neu'] = json.dumps(loc_values['neu'][0:10])
+        results['ls_neg'] = json.dumps(loc_values['neg'][0:10])
         return render(request, "website/dashboard.html", results)
         # TODO: Parse the data in the front end to display the charts with the returned data
-        
+
 
 def dashboard(request):
     # if a get request was made, return the form as is
@@ -165,9 +174,12 @@ def parsechartpoints(df):
 def wordFrequency(tweets, hashtag):
 
     processed = cleantweets(tweets, hashtag)
+    words = []
+    for tweet in processed:
+        for j in tweet.split():
+            words.append(j)
+    dict_ = wordListToFreqDict(words)  # split the tweets into words
 
-    dict_ = wordListToFreqDict(processed)
-   
     sorted = sortFreqDict(dict_)
 
     return sorted
@@ -188,35 +200,61 @@ def sortFreqDict(freqdict):
 
 def cleantweets(tweets, hashtag):
     cleaned = []
-    for i in tweets:
+    for i in tweets:  # for each tweet
+        i = preprocess(i)  # preprocess the tweet here
         # remove the hastag cause it will apppear the most
         i = i.replace(str(hashtag).lower(), '')
-        i = preprocess(i) #preprocess the tweet here
-        for j in i.split():
-            cleaned.append(j)
+        cleaned.append(i)
+    return cleaned  # cleaned tweets
 
-    return cleaned
-def wordFrequency_Sentiment(words,alltweets):  
-    wordf_sentiment = []
+
+def wordFrequency_Sentiment(words, alltweets):
+    pos = []
+    neu = []
+    neg = []
+
     for word in words:
         num_in = 0
         sentiment = 0
-       
         for row in alltweets:
             ans = preprocess(row['tweet'])
-            if word in ans:         
+
+            if word in ans:
                 num_in = num_in + 1
-                sentiment = sentiment+ row['value']
+                sentiment = sentiment + row['value']
 
-        wordf_sentiment.append({"word":word,"n_in":num_in,"avg_sentiment":(sentiment/num_in) if num_in>0 else 0}) 
+        avg = (sentiment/num_in) if num_in > 0 else 0
+        if (avg < 0.45):
+            neg.append({"word": word, "count": num_in, })
+        elif (avg > 0.55):
+            pos.append({"word": word, "count": num_in, })
+        else:
+            neu.append({"word": word, "count": num_in, })
 
-    return {"words":[d["word"] for d in wordf_sentiment],"counts":[d["n_in"] for d in wordf_sentiment],"sentiments":[d["avg_sentiment"] for d in wordf_sentiment]}
+    all = pos + neu + neg  # note order
+    return {"words": [d["word"] for d in all], "pos": [d["count"] for d in pos], "neu": [d["count"] for d in neu], "neg": [d["count"] for d in neg]}
+
 
 def locationData(alltweets):
-   
+
     df = pd.DataFrame(alltweets)
-    df2 = df.groupby('location',sort=False).agg({'value': ['mean','count']}).reset_index()
-    sortedDF=df2.sort_values([('value', 'count')], ascending=False)
-    dict =  sortedDF.to_dict()
-   
-    return {"places": list(dict.values())[0].values(),"sentiment": list(dict.values())[1].values(),"counts": list(dict.values())[2].values()}
+    df2 = df.groupby('location', sort=False).agg(
+        {'value': ['mean', 'count']}).reset_index()
+    sortedDF = df2.sort_values([('value', 'count')], ascending=False)
+    list_ = sortedDF.values.tolist()
+    places = [i[0] for i in list_]
+    sentiment = [i[1] for i in list_]
+    counts = [i[2] for i in list_]
+    pos = []
+    neu = []
+    neg = []
+    for s in sentiment:
+        if (s < 0.45):
+            # The sentiment and count are at correnspinding indices
+            neg.append(counts[sentiment.index(s)])
+        elif (s > 0.55):
+            pos.append(counts[sentiment.index(s)])
+        else:
+            neu.append(counts[sentiment.index(s)])
+
+    return {"places": [d for d in places], "pos": pos, "neu": neu, "neg": neg}
