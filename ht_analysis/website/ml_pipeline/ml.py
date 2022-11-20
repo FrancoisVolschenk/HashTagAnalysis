@@ -16,6 +16,11 @@ import numpy as np
 import nltk
 nltk.download('stopwords')
 
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' # tensorflow outputs a "helpful" message to tell you that it has optimizations enabled. This code turns that off
+"""2022-09-19 20:52:22.272276: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX AVX2
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags."""
 
 # Get English stopwords
 stop_words = stopwords.words('english')
@@ -52,7 +57,7 @@ def predict_sentiment(tweets_o: pd.DataFrame):
     tokenizer.fit_on_texts(tweets.Tweets)
 
     vocab_size = len(tokenizer.word_index) + 1
-    print("Vocabulary Size :", vocab_size)
+    # print("Vocabulary Size :", vocab_size)
 
     # Create sequences (numpy array) from the tokenized text
     sequences = pad_sequences(tokenizer.texts_to_sequences(

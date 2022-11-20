@@ -6,7 +6,7 @@
 <div class="dashboard">
     <div class="header col-center">
         <h2>Tweet Sentiment Analysis</h2>
-        {% if msg is None or hashtag is None %}
+        {% if hashtag is None %}
         <!-- This is how we determine if a value has been sent from the backend -->
         <div style="color: red; display: flex; justify-content: center;">
             <p>No Hashtag Input( maybe use trending hashtag?)</p>

@@ -60,7 +60,7 @@ def acquire_tweets(hashtag: str, upper_limit: int = None) -> pd.DataFrame:
     data_frame = pd.DataFrame(data, columns=columns)
 
     # Displaying the tweets
-    print(data_frame)
+    # print(data_frame)
     return data_frame
 
 
