@@ -14,6 +14,7 @@
 
     <!-- Custom fonts for this template-->
     <link href="{% static 'website/vendor/fontawesome-free/css/all.css' %}" rel="stylesheet" type="text/css">
+    
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
@@ -45,7 +46,7 @@
 
                 <!-- Nav Item - Dashboard -->
                 <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'home' %}"><!--TODO : Change to dashboard to route without any input(use defaults / trending hashtag?)-->
+                    <a class="nav-link" href="{% url 'home' %}">
                         <i class="fa fa-home"></i>
                         <span>Home</span></a>
                 </li>
@@ -54,7 +55,7 @@
 
                  <!-- Nav Item - Dashboard -->
                  <li class="nav-item active">
-                     <a class="nav-link" href="{% url 'home' %}">
+                     <a class="nav-link" href="{% url 'dashboard' %}"><!--TODO : Change to dashboard to route without any input(use defaults / trending hashtag?)-->
                          <i class="fas fa-fw fa-tachometer-alt"></i>
                          <span>Dashboard</span></a>
                  </li>
@@ -146,12 +147,12 @@
     <script src="{% static 'website/js/sb-admin-2.js' %}"></script>
 
     <!-- Page level plugins -->
-    <script src="{% static 'website/vendor/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'website/vendor/chart.js/Chart.js' %}"></script>
 
     <!-- Page level custom scripts -->
-    <script src="{% static 'website/js/demo/chart-area-demo.js' %}"></script>
-    <script src="{% static 'website/js/demo/chart-pie-demo.js' %}"></script>
-
+ 
+    <script src="https://kit.fontawesome.com/59fea021ff.js" crossorigin="anonymous"></script>
+    
 </body>
 
 </html>

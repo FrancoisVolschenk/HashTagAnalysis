@@ -8,16 +8,16 @@
         <div style="display: flex;flex-direction: column;align-items: flex-start;">
 
 
-            <div style="margin-left: 10rem;">
+            <div class="col-center" style="margin-left: 2rem;">
                 <h1 style="font-size: 3rem;">Tweet Sentiment Analysis</h1>
                 <div class="col-center">
-                    <h3 style="font-size: 1rem;"> Categorize tweets as Positive or Negative</h3>
-                  
-                        <img class="e-image" src="{% static 'website/img/emojis.png' %}">
+                    <h3 style="font-size: 1rem;"> Categorize tweets as Positive, Neutral or Negative</h3>
 
-                 
+                    <img class="e-image" src="{% static 'website/img/emojis.png' %}">
+
+
                 </div>
-                <div class="row search-container" >
+                <div class="row search-container">
                     <div class="search ">
                         <!-- Topbar Search -->
                         <form method="POST"
@@ -26,15 +26,16 @@
                             <!-- This is part of the django built in security to prevent malicious websites from sending requests to ours via forged requests -->
                             <div class="input-number div-center" style="margin-left: 6rem;">
 
-                                <input type="number" id="limit"   name="limit"class="form-control bg-light border-0 small" placeholder="Number of tweets" required><!--Required until can be converted to int-->
+                                <input type="number" id="limit" name="limit"
+                                    class="form-control bg-light border-0 small" placeholder="Number of tweets"
+                                    required>
+                                <!--Required until can be converted to int-->
                             </div>
                             <div class="input-group">
                                 <span
                                     style="display: flex;justify-content: flex-end;align-items: center;color: black;font-size: 1.5rem;margin-left: .5rem;/*! margin-right: -.rem; */">#</span>
-                                <input type="text" id="ht" name="ht" class="form-control bg-light border-0 small" 
-                                style="border-top-left-radius: 3rem;
-                                border-bottom-left-radius: 3rem;"
-                                    placeholder="Enter Hashtag..." aria-label="Search"
+                                <input type="text" id="ht" name="ht" class="form-control bg-light border-0 small" style="border-top-left-radius: 3rem;
+                                border-bottom-left-radius: 3rem;" placeholder="Enter Hashtag..." aria-label="Search"
                                     aria-describedby="basic-addon2" required>
                                 <div class="input-group-append submit-btn">
                                     <button class="btn btn-primary" type="sumbit">
