@@ -8,6 +8,6 @@ urlpatterns = [
 
     path('', include("website.urls")), # This will redirect the user to the website
 
-    #path("api/", include("api.urls")), # If we wish to add an API to make the service accessible to mobile apps or other programmers
+    path("api/", include("api.urls")), # This will redirect the user to our api
 
 ]
