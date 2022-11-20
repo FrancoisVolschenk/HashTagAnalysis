@@ -82,7 +82,6 @@ def data_visualizationPage(request, data, hashtag):
             frq_values[0:10])  # 10 most frequent words
         # Word Frequency with sentiment
         wf_sentiment = wordFrequency_Sentiment(  frq_words[0:10],results['all_tweets'])
-        print(wf_sentiment)
         results['wf_words'] = json.dumps(wf_sentiment['words'])
         results['wf_counts'] = json.dumps(wf_sentiment['counts'])
         results['wf_sentiments'] = json.dumps(wf_sentiment['sentiments'])
@@ -199,7 +198,6 @@ def cleantweets(tweets, hashtag):
     return cleaned
 def wordFrequency_Sentiment(words,alltweets):  
     wordf_sentiment = []
-    print(type(words))
     for word in words:
         num_in = 0
         sentiment = 0
